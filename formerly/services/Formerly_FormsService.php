@@ -301,58 +301,72 @@ class Formerly_FormsService extends BaseApplicationComponent
 		$field->name   = $question->name;
 		$field->handle = $prefix ? $prefix.'_'.$question->handle : $question->handle;
 
-		switch ($question->type)
-		{
-			case Formerly_QuestionType::PlainText:
-			case Formerly_QuestionType::MultilineText:
+        // Ask if another plugin defines what the attributes for the FieldModel of this
+        // question type should be.
+        $pluginFieldAttributes = craft()->plugins->call('getFormerlyQuestionFieldAttributes', array($question));
 
-				$field->type = 'PlainText';
-				$field->settings = array(
-					'multiline' => $question->type == Formerly_QuestionType::MultilineText
-				);
+        // Filter out any empty responses from plugins.
+        $pluginFieldAttributes = array_filter($pluginFieldAttributes);
 
-				break;
+        // If a plugin did define what FieldModel attributes should be.
+        if (!empty($pluginFieldAttributes)) {
+            foreach($pluginFieldAttributes as $fieldAttributes) {
+                // Apply the attribute values to the new FieldModel.
+                foreach ($fieldAttributes as $fieldAttribute => $fieldAttributeValue) {
+                    $field->{$fieldAttribute} = $fieldAttributeValue;
+                }
+            }
+        } else {
+            switch ($question->type) {
+                case Formerly_QuestionType::PlainText:
+                case Formerly_QuestionType::MultilineText:
 
-			case Formerly_QuestionType::Dropdown:
-			case Formerly_QuestionType::RadioButtons:
-			case Formerly_QuestionType::Checkboxes:
+                    $field->type = 'PlainText';
+                    $field->settings = array(
+                        'multiline' => $question->type == Formerly_QuestionType::MultilineText
+                    );
 
-				$field->type = $question->type;
-				$field->settings = array(
-					'options' => $question->options
-				);
+                    break;
 
-				break;
+                case Formerly_QuestionType::Dropdown:
+                case Formerly_QuestionType::RadioButtons:
+                case Formerly_QuestionType::Checkboxes:
 
-			/*case Formerly_QuestionType::FileUpload:
+                    $field->type = $question->type;
+                    $field->settings = array(
+                        'options' => $question->options
+                    );
 
-				// todo
+                    break;
 
-				break;*/
+                /*case Formerly_QuestionType::FileUpload:
+
+                    // todo
+
+                    break;*/
 
 
+                case Formerly_QuestionType::Email:
+                    $field->type = 'PlainText';
+                    break;
 
-			case Formerly_QuestionType::Email:
-				$field->type = 'PlainText';
-				break;
+                case Formerly_QuestionType::Tel:
+                    $field->type = 'PlainText';
+                    break;
 
-			case Formerly_QuestionType::Tel:
-				$field->type = 'PlainText';
-				break;
+                case Formerly_QuestionType::Url:
+                    $field->type = 'PlainText';
+                    break;
 
-			case Formerly_QuestionType::Url:
-				$field->type = 'PlainText';
-				break;
+                case Formerly_QuestionType::Number:
+                    $field->type = 'Number';
+                    break;
 
-			case Formerly_QuestionType::Number:
-				$field->type = 'Number';
-				break;
-
-			case Formerly_QuestionType::Date:
-				$field->type = 'Date';
-				break;
-		}
-
+                case Formerly_QuestionType::Date:
+                    $field->type = 'Date';
+                    break;
+            }
+        }
 
 		return $field;
 	}
