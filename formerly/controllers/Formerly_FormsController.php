@@ -79,6 +79,11 @@ class Formerly_FormsController extends BaseController
 			$variables['title'] = Craft::t('New form');
 		}
 
+        // Get all the question types that are avaiable for the user to choose
+        // when creating a question.
+        $variables['question_types'] = array_flip(craft()->formerly_forms->getQuestionTypes());
+        asort($variables['question_types']);
+
 		$variables['crumbs'] = array(
 			array('label' => Craft::t('Formerly'), 'url' => UrlHelper::getUrl('formerly')),
 		);

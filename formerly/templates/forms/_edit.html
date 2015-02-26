@@ -2,7 +2,7 @@
 
 {% includeCssResource('formerly/formerly.css') %}
 
-{% macro questionMarkup(id, question) %}
+{% macro questionMarkup(id, question_types, question) %}
 	{% import '_includes/forms' as forms %}
 
 	<div class="question matrixblock" data-id="{{ id }}">
@@ -47,18 +47,7 @@
 				name: "questions[#{id}][type]",
 				value: question ? question.type,
 				errors: question ? question.getErrors('type'),
-				options: {
-					PlainText: 'Text',
-					MultilineText: 'Multiline Text',
-					Dropdown: 'Dropdown',
-					RadioButtons: 'Radio Buttons',
-					Checkboxes: 'Checkboxes',
-					Email: 'Email',
-					Tel: 'Tel',
-					Url: 'Url',
-					Number: 'Number',
-					Date: 'Date'
-				}
+				options: question_types
 			}) }}
 
 			<div class="options">
@@ -155,7 +144,7 @@
 
 		<div id="questions" class="blocks">
 			{% for questionId, question in questions %}
-				{{ self.questionMarkup(questionId, question) }}
+				{{ self.questionMarkup(questionId, question_types, question) }}
 			{% endfor %}
 		</div>
 
@@ -171,7 +160,7 @@
 	</form>
 
 	<script type="text/template" id="question_template">
-		{{ self.questionMarkup('__QUESTION_ID__') }}
+		{{ self.questionMarkup('__QUESTION_ID__', question_types) }}
 	</script>
 
 {% endblock %}

@@ -432,4 +432,28 @@ class Formerly_FormsService extends BaseApplicationComponent
 
 		return $layout;
 	}
+
+    public function getQuestionTypes() {
+        $internalTypes = array(
+            'Text' => Formerly_QuestionType::PlainText,
+            'Multiline Text' => Formerly_QuestionType::MultilineText,
+            'Dropdown' => Formerly_QuestionType::Dropdown,
+            'Radio Buttons' => Formerly_QuestionType::RadioButtons,
+            'Checkboxes' => Formerly_QuestionType::Checkboxes,
+            'Email' => Formerly_QuestionType::Email,
+            'Tel' => Formerly_QuestionType::Tel,
+            'Url' => Formerly_QuestionType::Url,
+            'Number' => Formerly_QuestionType::Number,
+            'Date' => Formerly_QuestionType::Date
+        );
+
+        $pluginQuetionsTypes = craft()->plugins->call('getFormerlyQuestionTypes', array($internalTypes));
+        $pluginQuetionsTypes = array_filter($pluginQuetionsTypes);
+
+        $questionTypes = array_reduce($pluginQuetionsTypes, function($types, $pluginQuestionType) {
+            return $pluginQuestionType + $types;
+        }, $internalTypes);
+
+        return $questionTypes;
+    }
 }
